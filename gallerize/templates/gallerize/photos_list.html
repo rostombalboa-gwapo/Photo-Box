@@ -1,0 +1,248 @@
+{% extends 'gallerize/base.html' %}
+{% load static %}
+
+{% block title %}Photos - Gallerize{% endblock %}
+
+{% block content %}
+<!-- Main Content Area Context Wrapper -->
+<div class="bg-[#FDFBF7] text-[#1C1A17] max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-16 pb-24 relative min-h-[calc(100vh-10rem)] antialiased z-10">
+    
+    <!-- Subtle Ambient Canvas Underlay -->
+    <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#D4A373]/5 rounded-full blur-[150px] pointer-events-none -z-10"></div>
+
+    <!-- Editorial Header Segment Layout -->
+    <div class="mb-12 text-left flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-[#EBE6DD] pb-8">
+        <div class="space-y-3">
+            <!-- Premium Editorial Microband Label -->
+            <div class="inline-flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 bg-[#D4A373] rounded-full"></span>
+                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[#706B63]">Visual Archive</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-tight text-[#1C1A17] font-serif">
+                Photo <span class="italic font-normal text-[#D4A373]">Gallery</span>
+            </h1>
+            <p class="text-xs font-medium tracking-wide text-[#706B63] max-w-md leading-relaxed">
+                Browse through your captured moments, preserved cleanly within our studio registry layout.
+            </p>
+        </div>
+        
+        <!-- Interactive Actions Alignment Panel -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <!-- Quick Stats Premium Badge -->
+            <div class="px-4 py-2.5 rounded-sm bg-[#F7F4EB] border border-[#EBE6DD] text-[10px] font-bold uppercase tracking-wider text-[#706B63] text-center">
+                Displaying <span class="text-[#1C1A17] font-extrabold">{{ page_obj.start_index|default:0 }}</span> – <span class="text-[#1C1A17] font-extrabold">{{ page_obj.end_index|default:0 }}</span> of <span class="text-[#D4A373] font-extrabold">{{ paginator.count|default:0 }}</span> Indexes
+            </div>
+
+            <!-- Upload Redirection Pipeline Anchor -->
+            <a href="{% url 'photo_create' %}" 
+               class="inline-flex items-center justify-center space-x-2 px-5 py-3.5 bg-[#1C1A17] hover:bg-[#D4A373] hover:text-[#1C1A17] active:scale-[0.98] text-[10px] font-bold uppercase tracking-[0.18em] text-[#FDFBF7] rounded-sm transition-all duration-300 shadow-sm cursor-pointer">
+                <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Upload Asset</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Gallery Masonry Matrix Architecture -->
+    {% if photos %}
+    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6 [column-fill:_balance] box-border">
+        {% for photo in photos %}
+        <div class="break-inside-avoid bg-[#F7F4EB] border border-[#EBE6DD] rounded-xs overflow-hidden group hover:bg-[#F3EFE3] hover:border-[#D9D2C4] hover:-translate-y-1 transition-all duration-500 ease-out relative flex flex-col p-3 shadow-xs">
+            
+            <!-- Image Frame Element Wrapper -->
+            <div class="overflow-hidden bg-[#EBE6DD] aspect-auto relative rounded-xs border border-[#E0D9CE]">
+                {% if photo.image %}
+                <img id="photo-img-{{ photo.id }}" src="{{ photo.image.url }}" 
+                     alt="{{ photo.caption|default:'Studio Registry Asset' }}" 
+                     class="w-full h-auto object-cover scale-[1.01] group-hover:scale-[1.04] transition-all duration-700 ease-out grayscale-[10%] group-hover:grayscale-0" loading="lazy">
+                {% else %}
+                <!-- Fallback Matte Graphic Asset Container -->
+                <div class="w-full h-48 bg-[#EBE6DD] flex items-center justify-center text-[#A39C90]">
+                    <svg class="w-8 h-8 stroke-[1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                {% endif %}
+
+                <!-- Floating Minimalist Delete Management Trigger -->
+                <div class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                    <button type="button" 
+                            class="open-delete-modal p-2 bg-[#FDFBF7]/90 hover:bg-[#1C1A17] text-[#706B63] hover:text-[#FDFBF7] border border-[#EBE6DD] hover:border-[#1C1A17] rounded-sm shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
+                            data-photo-id="{{ photo.pk }}"
+                            data-delete-url="{% url 'photo_delete' pk=photo.pk %}"
+                            title="Purge Image From Database">
+                        <svg class="w-3.5 h-3.5 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Linear Light Shifter Screen Overlap -->
+                <div class="absolute inset-0 bg-[#1C1A17]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            </div>
+
+            <!-- Typography Description Label Frame -->
+            <div class="pt-4 pb-1 px-1 flex-grow flex flex-col justify-between">
+                {% if photo.caption %}
+                <p class="text-xs font-bold uppercase tracking-wide text-[#1C1A17] line-clamp-2 leading-relaxed mb-3">
+                    {{ photo.caption }}
+                </p>
+                {% else %}
+                <p class="text-xs italic text-[#918A7F] font-medium mb-3">Untitled Catalog Entry</p>
+                {% endif %}
+                
+                <!-- Curated Metadata Footprint Segment -->
+                <div class="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.15em] text-[#918A7F] pt-2.5 border-t border-[#EBE6DD]">
+                    <span class="truncate max-w-[130px] text-[#1C1A17]">
+                        Vol. {{ photo.album.title|default:"Unassigned" }}
+                    </span>
+                    <span class="font-medium tracking-normal text-[#706B63]">
+                        {{ photo.uploaded_at|date:"M d, Y" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Editorial Minimalist Pagination Interface -->
+    {% if is_paginated %}
+    <div class="mt-20 flex justify-center">
+        <nav class="inline-flex items-center gap-1.5 bg-[#F7F4EB] border border-[#EBE6DD] p-2 rounded-sm shadow-xs" aria-label="Pagination Control Engine">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="inline-flex items-center justify-center w-9 h-9 rounded-sm text-[#706B63] hover:text-[#1C1A17] hover:bg-[#EBE6DD]/50 border border-transparent hover:border-[#EBE6DD] transition-all duration-200">
+                <svg class="w-4 h-4 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+            </a>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-sm bg-[#1C1A17] text-[#FDFBF7] text-xs font-bold border border-[#1C1A17]">
+                    {{ num }}
+                </span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="inline-flex items-center justify-center w-9 h-9 rounded-sm text-[#706B63] hover:text-[#1C1A17] hover:bg-[#EBE6DD]/40 text-xs font-bold transition duration-150">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="inline-flex items-center justify-center w-9 h-9 rounded-sm text-[#706B63] hover:text-[#1C1A17] hover:bg-[#EBE6DD]/50 border border-transparent hover:border-[#EBE6DD] transition-all duration-200">
+                <svg class="w-4 h-4 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Studio Blank Empty Slate Notification Design -->
+    <div class="py-24 text-center border border-dashed border-[#EBE6DD] rounded-sm bg-[#F7F4EB] max-w-sm mx-auto mt-16 px-6 shadow-xs">
+        <div class="w-10 h-10 bg-[#EBE6DD] border border-[#E0D9CE] text-[#A39C90] flex items-center justify-center mx-auto mb-4 rounded-sm">
+            <svg class="w-5 h-5 stroke-[1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <h3 class="text-xs font-extrabold uppercase tracking-[0.2em] text-[#1C1A17]">No Assets Found</h3>
+        <p class="text-[11px] text-[#706B63] mt-2 mb-6 max-w-xs mx-auto leading-relaxed">Your secure layout frame is unpopulated. Initialize your archive setup sequence.</p>
+        <a href="{% url 'photo_create' %}" class="inline-flex py-3 px-5 bg-[#1C1A17] hover:bg-[#D4A373] hover:text-[#1C1A17] text-[10px] font-bold uppercase tracking-[0.15em] text-[#FDFBF7] rounded-sm transition-all duration-300 cursor-pointer shadow-xs">
+            Initialize Asset
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ========================================================================= -->
+<!-- PREMIUM MATTE CONFIRMATION WIPE MODAL SYSTEM -->
+<!-- ========================================================================= -->
+<div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-400 ease-out hidden">
+    <!-- Premium Frosted Studio Underlay Backdrop -->
+    <div id="modal-backdrop" class="absolute inset-0 bg-[#1C1A17]/40 backdrop-blur-sm transition-opacity duration-400"></div>
+    
+    <!-- Modal Central Panel Platform Frame Container -->
+    <div class="bg-[#FDFBF7] border border-[#EBE6DD] rounded-sm max-w-md w-full p-6 sm:p-8 relative z-10 transform scale-95 transition-transform duration-400 shadow-xl">
+        <div class="flex items-start gap-4">
+            <!-- Alert Icon Highlight Anchor -->
+            <div class="flex-shrink-0 w-10 h-10 bg-[#D4A373]/10 border border-[#D4A373]/30 text-[#D4A373] flex items-center justify-center rounded-sm">
+                <svg class="w-5 h-5 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 class="text-sm font-extrabold uppercase tracking-wider text-[#1C1A17]">Purge Media Asset?</h3>
+                <p class="text-[11px] text-[#706B63] leading-relaxed">
+                    This execution command permanently cleanses this image asset and its registry footprint from the application storage layers. This systemic transaction is absolute.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Action Trigger Tray Control Array -->
+        <div class="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-[#EBE6DD]">
+            <button id="close-delete-modal" type="button" class="px-4 py-2.5 bg-transparent hover:bg-[#EBE6DD]/40 border border-[#EBE6DD] rounded-sm text-[10px] font-bold uppercase tracking-wider text-[#706B63] hover:text-[#1C1A17] transition duration-200 cursor-pointer">
+                Abort
+            </button>
+            
+            <form id="modal-delete-form" method="POST" action="">
+                {% csrf_token %}
+                <button type="submit" class="px-5 py-2.5 bg-[#1C1A17] hover:bg-[#D4A373] hover:text-[#1C1A17] border border-[#1C1A17] hover:border-[#D4A373] rounded-sm text-[10px] font-bold uppercase tracking-[0.15em] text-[#FDFBF7] transition-all duration-300 cursor-pointer shadow-xs">
+                    Confirm Purge
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Structural Interceptor Modal Logic Engine Control Sequence -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('delete-modal');
+        const modalBody = modal.querySelector('.transform');
+        const deleteForm = document.getElementById('modal-delete-form');
+        const openButtons = document.querySelectorAll('.open-delete-modal');
+        const closeButton = document.getElementById('close-delete-modal');
+        const backdrop = document.getElementById('modal-backdrop');
+
+        function showModal(deleteUrl) {
+            deleteForm.setAttribute('action', deleteUrl);
+            modal.classList.remove('hidden');
+            
+            // Redraw operational gap sync sequence execution loop
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalBody.classList.remove('scale-95');
+                modalBody.classList.add('scale-100');
+            }, 20);
+        }
+
+        function hideModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalBody.classList.remove('scale-100');
+            modalBody.classList.add('scale-95');
+            
+            // Lifecycle rendering alignment transition timeout hook
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 400);
+        }
+
+        openButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetUrl = btn.getAttribute('data-delete-url');
+                showModal(targetUrl);
+            });
+        });
+
+        closeButton.addEventListener('click', hideModal);
+        backdrop.addEventListener('click', hideModal);
+
+        // Escape Keyboard Accessibility Event Interception Handler
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                hideModal();
+            }
+        });
+    });
+</script>
+{% endblock %}

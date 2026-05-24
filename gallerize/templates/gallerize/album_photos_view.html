@@ -1,0 +1,135 @@
+{% extends 'gallerize/base.html' %}
+{% load static %}
+
+{% block title %}{{ album.title }} | Gallerize{% endblock %}
+
+{% block content %}
+<!-- Main Content Area Context Wrapper -->
+<div class="bg-[#FDFBF7] text-[#1C1A17] max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-16 pb-24 relative min-h-[calc(100vh-10rem)] antialiased z-10">
+    
+    <!-- Subtle Ambient Canvas Underlay -->
+    <div class="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[#D4A373]/5 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+
+    <!-- Top Context Navigation -->
+    <div class="mb-6">
+        <a href="{% url 'album_list' %}" class="inline-flex items-center text-[10px] font-bold uppercase tracking-[0.2em] text-[#706B63] hover:text-[#1C1A17] transition-colors duration-200 gap-1.5 group">
+            <svg class="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-200 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Volumes
+        </a>
+    </div>
+
+    <!-- Editorial Album Banner Section -->
+    <div class="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-8 border-b border-[#EBE6DD] pb-8">
+        <div class="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
+            
+            <!-- Album Cover Art Frame -->
+            <div class="w-28 h-28 bg-[#EBE6DD] border border-[#E0D9CE] rounded-xs overflow-hidden shadow-sm flex-shrink-0 p-1.5">
+                <div class="w-full h-full relative overflow-hidden rounded-xs bg-[#F7F4EB] border border-[#EBE6DD]">
+                    {% if album.cover_image %}
+                        <img src="{{ album.cover_image.url }}" alt="{{ album.title }}" class="w-full h-full object-cover grayscale-[15%]">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-[#A39C90]">
+                            <svg class="w-8 h-8 stroke-[1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 0v15m0-15l-10.5 3m10.5-3V3.75m-10.5 6.375V19.5M3.75 19.5h16.5M12 4.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM18 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Typography Header Label Metadata Grid -->
+            <div class="space-y-2">
+                <h1 class="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#1C1A17] font-serif">
+                    {{ album.title }}
+                </h1>
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#706B63]">
+                    <span class="text-[#1C1A17]">Index: {{ album.artist.username }}</span>
+                    <span class="text-[#D9D2C4] font-normal">•</span>
+                    <span class="font-medium tracking-normal text-[#918A7F]">{{ album.release_date|date:"M d, Y" }}</span>
+                    <span class="text-[#D9D2C4] font-normal">•</span>
+                    <span class="text-[#D4A373] font-extrabold">{{ photos.count }} Manifests</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Management Toolbar Control Block -->
+        <div class="flex items-center justify-center gap-3 self-center md:self-auto">
+            <!-- Edit Action Anchor -->
+            <a href="{% url 'album_update' album.id %}" 
+               class="inline-flex items-center space-x-2 px-4 py-3 bg-[#F7F4EB] hover:bg-[#EBE6DD] text-[10px] font-bold uppercase tracking-wider text-[#706B63] hover:text-[#1C1A17] rounded-sm border border-[#EBE6DD] transition duration-200 active:scale-[0.98]">
+                <svg class="w-3.5 h-3.5 text-[#918A7F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                <span>Edit Record</span>
+            </a>
+
+            <!-- Delete Action Anchor -->
+            <a href="{% url 'album_delete' album.id %}" 
+               class="inline-flex items-center space-x-2 px-4 py-3 bg-transparent hover:bg-[#D4A373]/10 text-[10px] font-bold uppercase tracking-wider text-[#A39C90] hover:text-[#D4A373] rounded-sm border border-[#EBE6DD] hover:border-[#D4A373]/30 transition duration-200 active:scale-[0.98]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Purge Volume</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Inside Album Photos Matrix Grid -->
+    {% if photos %}
+    <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6 [column-fill:_balance] box-border">
+        {% for photo in photos %}
+        <div class="break-inside-avoid bg-[#F7F4EB] border border-[#EBE6DD] rounded-xs overflow-hidden group hover:bg-[#F3EFE3] hover:border-[#D9D2C4] hover:-translate-y-0.5 transition-all duration-500 ease-out relative flex flex-col p-3 shadow-xs">
+            
+            <!-- Graphic Element Frame Grid Layout -->
+            <div class="overflow-hidden bg-[#EBE6DD] aspect-auto relative rounded-xs border border-[#E0D9CE]">
+                <img src="{{ photo.image.url }}" 
+                     alt="{{ photo.caption|default:'Studio Document Frame' }}" 
+                     class="w-full h-auto object-cover scale-[1.01] group-hover:scale-[1.03] transition-all duration-700 ease-out grayscale-[10%] group-hover:grayscale-0" loading="lazy">
+                
+                <!-- Minimalist Matte Hover Interface Controls -->
+                <div class="absolute inset-0 bg-[#1C1A17]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+                    <div class="flex items-center justify-end">
+                        <form method="POST" action="{% url 'photo_delete' pk=photo.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="p-2 bg-[#FDFBF7] hover:bg-[#1C1A17] text-[#706B63] hover:text-[#FDFBF7] border border-[#EBE6DD] hover:border-[#1C1A17] rounded-sm shadow-xs transition duration-150 cursor-pointer" title="Purge Asset">
+                                <svg class="w-3.5 h-3.5 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Label Footnote Footer Card Block -->
+            <div class="pt-4 pb-1 px-1 flex-grow flex flex-col justify-between">
+                <p class="text-xs font-bold uppercase tracking-wide text-[#1C1A17] leading-relaxed line-clamp-2 mb-2">
+                    {{ photo.caption|default:"Untitled Track Manifest" }}
+                </p>
+                <div class="text-[9px] font-bold uppercase tracking-wider text-[#918A7F] mt-1 text-right tracking-[0.1em]">
+                    {{ photo.uploaded_at|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Studio Blank Empty State Grid Layout Frame Notification -->
+    <div class="py-24 text-center border border-dashed border-[#EBE6DD] rounded-sm bg-[#F7F4EB] max-w-sm mx-auto mt-16 px-6 shadow-xs">
+        <div class="w-10 h-10 bg-[#EBE6DD] border border-[#E0D9CE] text-[#A39C90] flex items-center justify-center mx-auto mb-4 rounded-sm">
+            <svg class="w-5 h-5 stroke-[1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-xs font-extrabold uppercase tracking-[0.2em] text-[#1C1A17]">No Media Mounted</h3>
+        <p class="text-[11px] text-[#706B63] mt-2 mb-6 max-w-xs mx-auto leading-relaxed">This visual configuration set contains zero graphic files at this point.</p>
+        <a href="{% url 'album_list' %}" class="inline-flex py-3 px-5 bg-[#1C1A17] hover:bg-[#D4A373] hover:text-[#1C1A17] text-[10px] font-bold uppercase tracking-[0.15em] text-[#FDFBF7] rounded-sm transition-all duration-300 cursor-pointer shadow-xs">
+            Return to Directory
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

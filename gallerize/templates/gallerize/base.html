@@ -1,0 +1,209 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Photo-Box{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth micro-interactions for links, buttons, and graphics */
+        a, button, img, svg { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Premium custom scrollbar styling matching the warm editorial canvas */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #faf9f6; }
+        ::-webkit-scrollbar-thumb { background: #d6d3d1; rounded: 0px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+    </style>
+</head>
+
+<body class="bg-[#faf9f6] text-stone-900 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-stone-900 selection:text-white overflow-x-hidden relative">
+
+    <nav class="sticky top-0 z-40 bg-[#faf9f6]/95 backdrop-blur-md border-b border-stone-200 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-12 md:px-24 lg:px-36">
+            <div class="flex items-center justify-between h-24">
+                
+                <div class="flex-shrink-0 z-50">
+                    <a href="{% url 'home' %}" class="text-xl font-light tracking-[0.25em] uppercase text-stone-900 hover:text-stone-500 focus:outline-none">
+                        Photo-Box<span class="font-serif italic text-stone-400 lowercase text-sm tracking-normal ml-0.5">.system</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-10">
+                    <a href="{% url 'album_list' %}" class="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 relative py-1 group {% if request.resolver_match.url_name == 'album_list' %}text-stone-900{% endif %}">
+                        Galleries
+                        <span class="absolute bottom-0 left-0 w-full h-[1px] bg-stone-900 scale-x-0 group-hover:scale-x-100 {% if request.resolver_match.url_name == 'album_list' %}scale-x-100{% endif %} transition-transform origin-left duration-300"></span>
+                    </a>
+                    <a href="{% url 'album_create' %}" class="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 relative py-1 group {% if request.resolver_match.url_name == 'album_create' %}text-stone-900{% endif %}">
+                        Box
+                        <span class="absolute bottom-0 left-0 w-full h-[1px] bg-stone-900 scale-x-0 group-hover:scale-x-100 {% if request.resolver_match.url_name == 'album_create' %}scale-x-100{% endif %} transition-transform origin-left duration-300"></span>
+                    </a>
+                    <a href="{% url 'photo_create' %}" class="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 relative py-1 group {% if request.resolver_match.url_name == 'photo_create' %}text-stone-900{% endif %}">
+                        Add Memory
+                        <span class="absolute bottom-0 left-0 w-full h-[1px] bg-stone-900 scale-x-0 group-hover:scale-x-100 {% if request.resolver_match.url_name == 'photo_create' %}scale-x-100{% endif %} transition-transform origin-left duration-300"></span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    {% if user.is_authenticated %}
+                        <div class="flex flex-col items-end text-right border-r border-stone-200 pr-4">
+                            <span class="text-xs font-medium text-stone-900">{{ user.username }}</span>
+                            <span class="text-[9px] uppercase font-mono tracking-wider text-stone-400">Curator</span>
+                        </div>
+                        <form action="{% url 'logout' %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="px-5 py-2.5 border border-stone-200 text-[10px] font-bold uppercase tracking-widest text-stone-600 bg-white hover:bg-stone-900 hover:text-white transition duration-300 cursor-pointer">
+                                Exit
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-[10px] font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 py-2">
+                            Sign In
+                        </a>
+                        <a href="{% url 'signup' %}" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg hover:shadow-xl transition duration-300">
+                            Join Studio
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="flex md:hidden z-50">
+                    <button id="mobile-menu-toggle" type="button" class="inline-flex items-center justify-center p-2 text-stone-600 hover:text-stone-900 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Toggle primary menu</span>
+                        <svg id="hamburger-icon" class="block h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <svg id="close-icon" class="hidden h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
+
+    <div id="mobile-menu" class="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-white border-l border-stone-200 z-40 translate-x-full transition-transform duration-300 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col justify-between pt-28 pb-8 px-8 shadow-2xl md:hidden">
+        <div class="space-y-1.5 flex flex-col">
+            <a href="{% url 'album_list' %}" class="py-3 text-[10px] font-bold uppercase tracking-[0.25em] {% if request.resolver_match.url_name == 'album_list' %}text-stone-900 border-b border-stone-900/10{% else %}text-stone-400 hover:text-stone-900{% endif %}">
+                Galleries
+            </a>
+            <a href="{% url 'album_create' %}" class="py-3 text-[10px] font-bold uppercase tracking-[0.25em] {% if request.resolver_match.url_name == 'album_create' %}text-stone-900 border-b border-stone-900/10{% else %}text-stone-400 hover:text-stone-900{% endif %}">
+                Studio Desk
+            </a>
+            <a href="{% url 'photo_create' %}" class="py-3 text-[10px] font-bold uppercase tracking-[0.25em] {% if request.resolver_match.url_name == 'photo_create' %}text-stone-900 border-b border-stone-900/10{% else %}text-stone-400 hover:text-stone-900{% endif %}">
+                Add Photo
+            </a>
+        </div>
+        
+        <div>
+            <hr class="border-stone-100 my-6">
+            {% if user.is_authenticated %}
+                <div class="flex flex-col mb-6">
+                    <span class="text-xs font-medium text-stone-900">{{ user.username }}</span>
+                    <span class="text-[9px] uppercase font-mono tracking-wider text-stone-400 mt-0.5">Authenticated Curator</span>
+                </div>
+                <form action="{% url 'logout' %}" method="post" class="w-full">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full text-center py-3.5 border border-stone-200 text-[10px] font-bold uppercase tracking-widest text-stone-600 bg-white hover:bg-stone-900 hover:text-white transition duration-300 cursor-pointer">
+                        Exit Studio
+                    </button>
+                </form>
+            {% else %}
+                <div class="grid grid-cols-1 gap-3">
+                    <a href="{% url 'login' %}" class="flex items-center justify-center py-3.5 border border-stone-200 text-[10px] font-bold uppercase tracking-widest text-stone-600 bg-white hover:bg-stone-50">
+                        Sign In
+                    </a>
+                    <a href="{% url 'signup' %}" class="flex items-center justify-center py-3.5 bg-stone-900 hover:bg-stone-800 text-white text-[10px] font-bold uppercase tracking-widest shadow-md">
+                        Join Studio
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <main class="flex-grow animate-fade-in focus:outline-none" id="main-content" tabindex="-1">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-white border-t border-stone-200/80 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-12 md:px-24 lg:px-36 py-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            
+            <div class="flex items-center gap-3 text-center md:text-left">
+                <span class="text-sm font-light tracking-[0.2em] uppercase text-stone-900">Photo-Box</span>
+                <span class="text-[11px] text-stone-400 font-serif italic">&copy; {% now "Y" %} Workframe Architecture.</span>
+            </div>
+            
+            <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[9px] font-bold uppercase tracking-[0.25em] text-stone-400">
+                <span class="hover:text-stone-900 cursor-pointer transition-colors">Curation Rights</span>
+                <span class="hover:text-stone-900 cursor-pointer transition-colors">Index Blueprint</span>
+                <span class="hidden sm:inline text-stone-200">|</span>
+                <span class="text-stone-500 w-full sm:w-auto text-center sm:text-left tracking-normal font-serif italic capitalize">Built for Intentional Practitioners</span>
+            </div>
+            
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            function toggleSidebar() {
+                const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+                
+                toggleButton.setAttribute('aria-expanded', !isExpanded);
+                
+                if (!isExpanded) {
+                    // Open Sidebar
+                    mobileMenu.classList.remove('translate-x-full');
+                    sidebarBackdrop.classList.remove('opacity-0', 'pointer-events-none');
+                    document.body.classList.add('overflow-hidden'); // Lock body scroll when sidebar open
+                } else {
+                    // Close Sidebar
+                    mobileMenu.classList.add('translate-x-full');
+                    sidebarBackdrop.classList.add('opacity-0', 'pointer-events-none');
+                    document.body.classList.remove('overflow-hidden');
+                }
+                
+                hamburgerIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            }
+
+            toggleButton.addEventListener('click', toggleSidebar);
+            sidebarBackdrop.addEventListener('click', toggleSidebar); // Close sidebar when clicking backdrop
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    mobileMenu.classList.add('translate-x-full');
+                    sidebarBackdrop.classList.add('opacity-0', 'pointer-events-none');
+                    document.body.classList.remove('overflow-hidden');
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                    hamburgerIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

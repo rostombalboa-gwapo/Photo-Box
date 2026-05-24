@@ -1,0 +1,165 @@
+{% extends 'gallerize/base.html' %}
+{% load static %}
+
+{% block title %}Deploy Canvas | Photo-Box{% endblock %}
+
+{% block content %}
+<div class="bg-[#faf9f6] text-stone-900 min-h-screen font-sans selection:bg-stone-900 selection:text-white relative antialiased">
+    
+    <div class="absolute left-6 sm:left-12 top-0 bottom-0 w-[1px] bg-stone-200/60 pointer-events-none hidden md:block"></div>
+    <div class="absolute right-6 sm:right-12 top-0 bottom-0 w-[1px] bg-stone-200/60 pointer-events-none hidden md:block"></div>
+
+    <div class="max-w-3xl mx-auto px-4 sm:px-12 md:px-16 lg:px-20 pt-32 pb-24 relative z-10">
+        
+        <div class="mb-10">
+            <a href="{% url 'home' %}" class="inline-flex items-center gap-2.5 text-[9px] font-bold uppercase tracking-[0.25em] text-stone-400 hover:text-stone-900 transition-colors duration-200 group">
+                <svg class="w-3 h-3 transform group-hover:-translate-x-0.5 transition-transform duration-200 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <header class="mb-16 border-b border-stone-200 pb-8 space-y-3">
+            <div class="inline-flex items-center gap-3">
+                <span class="w-1 h-1 bg-stone-400 rounded-full"></span>
+                <span class="text-[9px] font-bold uppercase tracking-[0.3em] text-stone-400">Registry Form // Structural Build</span>
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-light tracking-tight text-stone-900 leading-none">
+                Create New <span class="font-serif italic font-normal text-stone-500">Collection.</span>
+            </h1>
+            <p class="text-stone-500 text-xs sm:text-sm leading-relaxed max-w-xl">
+                Initialize a clear exhibition pavilion, medium format index, or tailored lookbook workspace container.
+            </p>
+        </header>
+
+        <div class="bg-white border border-stone-200/80 p-6 sm:p-12 shadow-sm relative">
+            <div class="absolute top-4 left-4 w-4 h-4 border-t border-l border-stone-200 pointer-events-none"></div>
+            <div class="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-stone-200 pointer-events-none"></div>
+            
+            <form method="POST" action="{% url 'album_create' %}" enctype="multipart/form-data" class="space-y-10 relative z-10">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="p-4 bg-red-950 border border-red-800 text-red-200 text-[10px] font-mono tracking-wide uppercase space-y-1">
+                        {% for error in form.non_field_errors %}
+                            <p>– {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="space-y-3">
+                    <label for="{{ form.title.id_for_label }}" class="block text-[10px] font-bold uppercase tracking-[0.25em] text-stone-500">
+                        Collection Title
+                    </label>
+                    <input type="text" 
+                           name="{{ form.title.html_name }}" 
+                           id="{{ form.title.id_for_label }}"
+                           value="{{ form.title.value|default:'' }}"
+                           required
+                           class="w-full px-4 py-4 bg-stone-900 border border-stone-800 focus:border-stone-600 text-stone-100 text-xs font-medium tracking-wide placeholder-stone-500 focus:outline-none focus:ring-0 transition duration-200 uppercase" 
+                           placeholder="e.g., Monolithic Architecture Series">
+                    
+                    {% if form.title.errors %}
+                        <p class="text-[10px] font-mono tracking-wide text-amber-600 mt-1.5">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-3">
+                    <label for="{{ form.release_date.id_for_label }}" class="block text-[10px] font-bold uppercase tracking-[0.25em] text-stone-500">
+                        Index Reference Date
+                    </label>
+                    <input type="date" 
+                           name="{{ form.release_date.html_name }}" 
+                           id="{{ form.release_date.id_for_label }}"
+                           value="{{ form.release_date.value|default:'' }}"
+                           required
+                           class="w-full px-4 py-4 bg-stone-900 border border-stone-800 focus:border-stone-600 text-stone-100 text-xs font-mono tracking-wider focus:outline-none focus:ring-0 transition duration-200"
+                           style="color-scheme: dark;">
+                    
+                    {% if form.release_date.errors %}
+                        <p class="text-[10px] font-mono tracking-wide text-amber-600 mt-1.5">{{ form.release_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-[10px] font-bold uppercase tracking-[0.25em] text-stone-500">
+                        Exhibition Cover Asset
+                    </label>
+                    
+                    <div class="relative group">
+                        <input type="file" 
+                               name="{{ form.cover_image.html_name }}" 
+                               id="{{ form.cover_image.id_for_label }}"
+                               accept="image/*"
+                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                               onchange="previewImage(event)">
+
+                        <div id="dropzoneContainer" class="w-full py-14 px-4 border border-dashed border-stone-800 group-hover:border-stone-500 bg-stone-900 flex flex-col items-center text-center justify-center transition-all duration-300 relative overflow-hidden min-h-[200px]">
+                            
+                            <div id="uploadPrompt" class="space-y-4 transition duration-300">
+                                <div class="mx-auto w-10 h-10 bg-stone-800 border border-stone-700 text-stone-400 group-hover:text-stone-200 flex items-center justify-center transition duration-300 rounded-full">
+                                    <svg class="w-4 h-4 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-stone-100">
+                                        Select Asset Key <span class="text-stone-500 font-normal normal-case">or drop image file here</span>
+                                    </p>
+                                    <p class="text-[9px] font-mono tracking-widest text-stone-500 uppercase">RAW formats / JPG / WEBP (Max 5MB)</p>
+                                </div>
+                            </div>
+
+                            <div id="previewWrapper" class="hidden absolute inset-0 w-full h-full bg-stone-900 z-10">
+                                <img id="imagePreview" src="#" alt="Artwork Preview Canvas Layer" class="w-full h-full object-cover grayscale contrast-[1.04]">
+                                <div class="absolute inset-0 bg-stone-900/40 opacity-0 hover:opacity-100 flex items-center justify-center transition duration-300 backdrop-blur-xs">
+                                    <span class="bg-white text-stone-900 text-[9px] font-bold uppercase tracking-[0.2em] px-5 py-3 border border-stone-200 shadow-xl pointer-events-none">Modify Layout Asset</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if form.cover_image.errors %}
+                        <p class="text-[10px] font-mono tracking-wide text-amber-600 mt-1.5">{{ form.cover_image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-8 border-t border-stone-200">
+                    <a href="{% url 'home' %}" class="px-6 py-4 bg-transparent hover:bg-stone-50 border border-stone-200 text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400 hover:text-stone-900 transition duration-200">
+                        Discard
+                    </a>
+                    <button type="submit" class="px-8 py-4 bg-stone-900 hover:bg-stone-800 text-white font-semibold uppercase tracking-[0.2em] text-[10px] transition duration-300 shadow-xl hover:shadow-2xl">
+                        Save Volume Structure
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const previewWrapper = document.getElementById('previewWrapper');
+        const imagePreview = document.getElementById('imagePreview');
+        const dropzone = document.getElementById('dropzoneContainer');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                uploadPrompt.classList.add('hidden');
+                previewWrapper.classList.remove('hidden');
+                dropzone.classList.remove('border-dashed');
+                dropzone.classList.add('border-solid');
+                dropzone.style.borderColor = '#262626';
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

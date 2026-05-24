@@ -1,0 +1,107 @@
+{% extends 'albumize/base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ album.title|default:"Album" }} | Albumize{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24 min-h-[calc(100vh-10rem)]">
+    
+    <!-- Breadcrumb Back Navigation -->
+    <div class="mb-4">
+        <a href="{% url 'album_detail' album.id %}" class="inline-flex items-center text-xs font-semibold text-indigo-400 hover:text-indigo-300 tracking-wider uppercase transition-colors gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Cancel & Return
+        </a>
+    </div>
+
+    <!-- Form Container Box -->
+    <div class="bg-slate-900/40 border border-slate-800/60 rounded-3xl p-6 sm:p-10 backdrop-blur-md shadow-2xl">
+        
+        <!-- Header -->
+        <div class="mb-8 border-b border-slate-800 pb-5">
+            <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                Edit Album Details
+            </h1>
+            <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                Update your album title, release tracking data, or change the primary display artwork cover.
+            </p>
+        </div>
+
+        <!-- Form Element -->
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Global Non-Field Errors Handling -->
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-red-950/30 border border-red-900/50 rounded-xl text-xs text-red-400">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <!-- Dynamic Field Layout Loop -->
+            {% for field in form %}
+            <div class="flex flex-col gap-2">
+                <label for="{{ field.id_for_label }}" class="text-xs font-bold tracking-wide uppercase text-slate-300">
+                    {{ field.label }}
+                </label>
+                
+                <!-- Custom Django Form Rendering Wrapper -->
+                <div class="relative rounded-xl shadow-sm">
+                    {% if field.field.widget.input_type == "file" %}
+                        <!-- Customized treatment for File fields -->
+                        <div class="text-xs text-slate-400 bg-slate-950/50 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+                            {% if field.value %}
+                                <div class="flex items-center gap-3 text-slate-300 font-medium">
+                                    <span class="text-indigo-400">🖼️ Currently:</span>
+                                    <a href="{{ field.value.url }}" target="_blank" class="underline truncate max-w-xs hover:text-white transition">
+                                        {{ field.value.name }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                                   class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-slate-300 hover:file:bg-slate-800 file:transition cursor-pointer">
+                        </div>
+                    {% else %}
+                        <!-- Standard inputs (Text, Dates, Textareas) -->
+                        <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                               name="{{ field.name }}" 
+                               id="{{ field.id_for_label }}"
+                               value="{{ field.value|default_if_none:'' }}"
+                               class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/40 transition-all duration-200"
+                               {% if field.field.required %}required{% endif %}>
+                    {% endif %}
+                </div>
+
+                <!-- Field Specific Error Output -->
+                {% if field.errors %}
+                <p class="text-[11px] text-red-400 mt-0.5">
+                    {{ field.errors.as_text }}
+                </p>
+                {% endif %}
+                
+                <!-- Field Help Text Guidance -->
+                {% if field.help_text %}
+                <p class="text-[11px] text-slate-500 mt-0.5 leading-normal">
+                    {{ field.help_text }}
+                </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Form Action Footer Button Array -->
+            <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+                <a href="{% url 'album_detail' album.id %}" 
+                   class="px-5 py-2.5 bg-slate-950 hover:bg-slate-900 text-xs font-semibold text-slate-400 hover:text-slate-200 border border-slate-800 rounded-xl transition">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-xs font-semibold text-white rounded-xl transition shadow-lg shadow-indigo-600/10">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
